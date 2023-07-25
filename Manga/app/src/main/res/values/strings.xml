@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Manga</string>
+    <string name="url_comics">http://192.168.1.9:3000/comics/list</string>
+</resources>
