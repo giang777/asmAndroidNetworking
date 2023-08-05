@@ -1,4 +1,6 @@
-const UserModel = require('../model/user.model')
+const UserModel = require('../model/user.model');
+const ComicModel = require('../model/comic.model');
+const notification = require("./notification.controller");
 const bcrypt = require('bcrypt');
 
 
@@ -75,6 +77,39 @@ const login = async (req, res, next) => {
     }
 }
 
+
+const userFollowComics = async (req,res,next)=>{
+    try {
+
+        const obj = JSON.parse(req.body.listComics);
+     
+        let user = new UserModel({
+            _id: req.params.id,
+        });
+
+        let userFL = await UserModel.findById({_id: req.params.id})
+        let comicsFl = await ComicModel.findById({_id:obj.listComics[obj.listComics.length - 1]})
+
+        await user.updateOne({ follow:obj.listComics});
+        let msg = userFL.username + " " + "vừa theo dõi" + " " + comicsFl.name;
+
+        if(!req.body.isFollow){
+            notification.getNotification({titel:"Thông báo",msg:msg,img:comicsFl.img});
+        }
+        
+        return res.status(200).json({
+            listComics: obj.listComics,
+            msg: "Thành công",   
+            success: true,
+        })
+    } catch (error) {
+        return res.status(500).json({
+            msg: "Thất bại",
+            success: false,
+        })
+    }
+}
+
 const getlistUser = async (req, res, next) => {
     try {
         let user_data = await UserModel.find();
@@ -132,4 +167,4 @@ const updateUser = async (req, res, next) => {
 
 
 
-module.exports = { login, register, getlistUser, deleteUser, updateUser }
+module.exports = { login, register, getlistUser, deleteUser, updateUser,userFollowComics }

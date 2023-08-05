@@ -13,10 +13,15 @@ import com.example.manga.elements.child.Comics;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -91,6 +96,50 @@ public class ComicsApi {
             Chapters chapters = data_response_listChapter.getData();
 
             return chapters;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateViewOrFollowConmic(String action,String id,boolean isFollow){
+        String data = "";
+        try {
+            URL url = new URL(LinkApi.URI + LinkApi.PATCH_COMIC_UPDATE + action);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PATCH");
+            conn.setRequestProperty("Content-Type","application-json");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id",id);
+            jsonObject.put("isFollow",isFollow);
+            OutputStream outputStream = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter( new OutputStreamWriter(outputStream));
+            writer.append(jsonObject.toString());
+            writer.flush();
+            writer.close();
+            outputStream.close();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public void updateViewOrFollowConmic(String action,String id){
+        String data = "";
+        try {
+            URL url = new URL(LinkApi.URI + LinkApi.PATCH_COMIC_UPDATE + action);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PATCH");
+            conn.setRequestProperty("Content-Type","application-json");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id",id);
+            OutputStream outputStream = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter( new OutputStreamWriter(outputStream));
+            writer.append(jsonObject.toString());
+            writer.flush();
+            writer.close();
+            outputStream.close();
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

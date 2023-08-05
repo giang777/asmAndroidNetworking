@@ -43,64 +43,31 @@ const getListComicHot = (req, res, next) => {
 }
 
 
-const addComics = async (req, res, next) => {
-    try {
-        console.log(req.body);
-        let comics = new comicModel({
-            name: req.body.name,
-            author: req.body.author,
-            img: req.body.img,
-            describe: req.body.describe,
-            like: 0,
-            view: 0,
-            follow: 0,
-            status: true,
-            avatar_story: req.body.avatar_story
-
-        })
-
-        await comics.save();
-        return res.status(201).json({
-            msg: "Thành công",
-            success: true,
-        })
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            msg: "Thất bại",
-            success: false,
-        })
-    }
-}
-
-const deleteComics = async (req, res, next) => {
-    try {
-        await comicModel.deleteOne({ _id: req.params.id });
-        return res.status(200).json({
-            msg: "Thành công",
-            success: true,
-        })
-    } catch (error) {
-        return res.status(500).json({
-            msg: "Thất bại",
-            success: false,
-        })
-    }
-}
-
 const updateComics = async (req, res, next) => {
     try {
         let comics = new comicModel({
-            _id: req.params.id,
+            _id: req.body.id,
         });
 
-        await comics.updateOne({
-            name: req.body.name,
-            author: req.body.author,
-            image: req.body.image,
-            describe: req.body.describe,
-            avatar_story: req.body.avatar_story
-        });
+
+        switch (req.params.action) {
+            case 'view':
+                
+            await comics.updateOne({
+                view: comics.view + 1,
+            });
+            break;
+
+            case 'follow':
+            await comics.updateOne({
+                follow: comics.follow + 1,
+            });
+            break;
+
+            default:
+            break;
+        }
+
         return res.status(200).json({
             msg: "Thành công",
             success: true,
@@ -113,4 +80,4 @@ const updateComics = async (req, res, next) => {
     }
 }
 
-module.exports = { getListComic, getListComicHot, addComics, deleteComics,updateComics }
+module.exports = { getListComic, getListComicHot, updateComics }

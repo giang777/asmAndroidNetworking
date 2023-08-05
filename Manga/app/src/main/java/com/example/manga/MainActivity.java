@@ -4,16 +4,32 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.example.manga.api.LinkApi;
 import com.example.manga.elements.child.User;
 import com.example.manga.fragments.FragmentWelcome;
+import com.example.manga.services.SocketService;
+
+import java.net.URISyntaxException;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
 
 public class MainActivity extends AppCompatActivity {
 
     public static User UserLogin = null;
+    public static Socket socket;
+    {
+        try {
+            socket = IO.socket(LinkApi.URI);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     //hehe
@@ -21,7 +37,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        phanQuyen();
+
+        //socket.connect();
+        Intent intent = new Intent(this, SocketService.class);
+        startService(intent);
+        if (ActivityCompat.checkSelfPermission(MainActivity.this,
+                android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+
+            // Gọi hộp thoại hiển thị xin quyền người dùng
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 999999);
+            return; // thoát khỏi hàm nếu chưa được cấp quyền
+        }
+
+
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FragmentWelcome()).commit();
     }
 
@@ -48,5 +77,14 @@ public class MainActivity extends AppCompatActivity {
         }else{
             return true;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MainActivity.socket.connect();
+        Intent intent = new Intent("com.example.myapp.SOCKET_MESSAGE");
+        intent.putExtra("message", "App is closing.");
+        sendBroadcast(intent);
     }
 }

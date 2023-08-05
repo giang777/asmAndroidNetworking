@@ -8,5 +8,6 @@ router.get('/list',UserCTL.getlistUser);
 router.post('/login',UserCTL.login);
 router.post('/register',UserCTL.register);
 router.delete('/delete/:id',UserCTL.deleteUser);
-router.patch('/update/:id',UserCTL.updateUser)
+router.patch('/update/:id',UserCTL.updateUser);
+router.patch('/follow/:id',UserCTL.userFollowComics);
 module.exports = router;

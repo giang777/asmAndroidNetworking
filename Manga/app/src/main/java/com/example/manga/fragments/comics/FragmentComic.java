@@ -1,5 +1,9 @@
 package com.example.manga.fragments.comics;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -18,8 +22,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.manga.MainActivity;
 import com.example.manga.R;
 import com.example.manga.adapter.ListChaptersAdapter;
 import com.example.manga.adapter.ListCommentAdapter;
@@ -28,6 +34,7 @@ import com.example.manga.dialog.PopupComment;
 import com.example.manga.elements.child.Comics;
 import com.example.manga.elements.child.Contents;
 import com.example.manga.interface_item.OnClickchapter;
+import com.example.manga.services.FollowOrViewComicService;
 import com.example.manga.thread.GetListChapters;
 import com.example.manga.thread.GetListComments;
 import com.squareup.picasso.Picasso;
@@ -40,18 +47,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class FragmentComic extends Fragment {
-    private TextView name,author,desc,viewComics,follow,popup;
+    private TextView name,author,desc,viewComics,follow,popup,textFollow;
 
     private FrameLayout frameLayout;
-    private LinearLayout btn_readComic;
+    private LinearLayout btn_readComic,btn_followComics;
     private ImageView btn_back;
 
     private RecyclerView recyclerView,recyclerViewComment;
     private ListChaptersAdapter adapter;
     private ListCommentAdapter commentAdapter;
-
+    private boolean isFollow = false;
     private static final String TAG = "FRAGMENT_COMIC";
+
     private List<Contents> list = new ArrayList<>();
+    private IntentFilter filter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,14 +80,19 @@ public class FragmentComic extends Fragment {
         this.name = view.findViewById(R.id.name_comics);
         this.author = view.findViewById(R.id.author_comic);
         this.desc = view.findViewById(R.id.describe_comic);
+        this.textFollow = view.findViewById(R.id.text_Follow);
         this.viewComics = view.findViewById(R.id.view_comic);
         this.follow= view.findViewById(R.id.follow_comic);
         this.frameLayout = view.findViewById(R.id.header_comics);
         this.btn_back = view.findViewById(R.id.btn_back);
         this.btn_readComic = view.findViewById(R.id.btn_readComic);
+        this.btn_followComics = view.findViewById(R.id.btn_followComic);
         this.commentAdapter = new ListCommentAdapter(getActivity());
         this.recyclerView = view.findViewById(R.id.chapter_comics);
         this.recyclerViewComment = view.findViewById(R.id.list_comment);
+
+        this.filter = new IntentFilter(FollowOrViewComicService.ACTION_FOLLOW);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(resultReceiver, filter);
 
         Bundle bundle = getArguments();
         Comics comics = (Comics) bundle.get("comics");
@@ -116,7 +130,7 @@ public class FragmentComic extends Fragment {
         this.adapter= new ListChaptersAdapter(getActivity(), new OnClickchapter() {
             @Override
             public void onclickChapter(Contents contents) {
-              sendData(contents,list);
+                sendData(contents,list);
             }
         });
 
@@ -124,7 +138,7 @@ public class FragmentComic extends Fragment {
         btn_readComic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              sendData(list.get(0),list);
+                sendData(list.get(0),list);
             }
         });
 
@@ -137,6 +151,25 @@ public class FragmentComic extends Fragment {
                 popupComment.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 popupComment.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 popupComment.getWindow().setGravity(Gravity.BOTTOM);
+            }
+        });
+
+        btn_followComics.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                List<String> listComics = MainActivity.UserLogin.getFollow();
+                if(isFollow){
+                    listComics.remove(comics.get_id());
+                }else{
+                    listComics.add(comics.get_id());
+                }
+                Intent intent = new Intent(getActivity(), FollowOrViewComicService.class);
+                intent.putExtra(FollowOrViewComicService.EXTRA_ID_USER,MainActivity.UserLogin.get_id());
+                intent.putExtra(FollowOrViewComicService.EXTRA_LIST_COMICS, (Serializable) listComics);
+                intent.putExtra(FollowOrViewComicService.EXTRA_ISFOLLOW,isFollow);
+                intent.setAction(FollowOrViewComicService.ACTION_FOLLOW);
+                getActivity().startService(intent);
             }
         });
 
@@ -157,6 +190,31 @@ public class FragmentComic extends Fragment {
             }
         });
         executorService.execute(getListComments);
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                List<String> listComicsFollow = MainActivity.UserLogin.getFollow();
+                if(listComicsFollow == null){
+                   isFollow = false;
+                }else{
+                    Bundle bundle = getArguments();
+                    Comics comics = (Comics) bundle.get("comics");
+                    for(String item : listComicsFollow){
+                        if(item.equals(comics.get_id())){
+                            isFollow = true;
+                            break;
+                        }
+                    }
+                    if(isFollow){
+                        textFollow.setText("Dừng theo dõi");
+                        btn_followComics.setBackgroundColor(Color.parseColor("#FF0000"));
+                    }else{
+                        textFollow.setText("Theo dõi");
+                        btn_followComics.setBackgroundColor(Color.parseColor("#7FFF00"));
+                    }
+                }
+            }
+        });
     }
 
     private void sendData(Contents contents,List<Contents> list){
@@ -166,5 +224,59 @@ public class FragmentComic extends Fragment {
         bundle.putSerializable("listContent", (Serializable) list);
         chapterContent.setArguments(bundle);
         getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fragment_open,R.anim.fragment_exit).replace(R.id.fragment_container,chapterContent).addToBackStack(TAG).commit();
+    }
+
+    private BroadcastReceiver resultReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(FollowOrViewComicService.ACTION_FOLLOW.equals(intent.getAction())) {
+                List<String> list = (List<String>) intent.getSerializableExtra(FollowOrViewComicService.LIST_COMICS);
+                String msg = intent.getStringExtra(FollowOrViewComicService.MESSAGE);
+                boolean success = intent.getBooleanExtra(FollowOrViewComicService.RESULT,false);
+                if(success){
+                    if(list.size() == 0){
+                        isFollow = false;
+                        textFollow.setText("Theo dõi");
+                        btn_followComics.setBackgroundColor(Color.parseColor("#7FFF00"));
+                    }else{
+                        Bundle bundle = getArguments();
+                        Comics comics = (Comics) bundle.get("comics");
+                        isFollow = false;
+                        for(String item : list){
+                            if(item.equals(comics.get_id())){
+                                isFollow = true;
+                                break;
+                            }
+                        }
+                        if(isFollow){
+                            textFollow.setText("Dừng theo dõi");
+                            btn_followComics.setBackgroundColor(Color.parseColor("#FF0000"));
+                        }else{
+                            textFollow.setText("Theo dõi");
+                            btn_followComics.setBackgroundColor(Color.parseColor("#7FFF00"));
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().registerReceiver(resultReceiver,this.filter);
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(resultReceiver);
     }
 }

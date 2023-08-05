@@ -10,6 +10,7 @@ const comicRouter = require('./routes/comic');
 const chapterRouter = require('./routes/chapter');
 const commentRouter = require('./routes/comment');
 const blogRouter = require('./routes/blog');
+const notifiRouter = require('./routes/notification');
 const app = express();
 
 // view engine setup
@@ -28,6 +29,7 @@ app.use('/comics', comicRouter);
 app.use('/chapters', chapterRouter);
 app.use('/comments', commentRouter);
 app.use('/blogs',blogRouter)
+app.use('/notifi',notifiRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
