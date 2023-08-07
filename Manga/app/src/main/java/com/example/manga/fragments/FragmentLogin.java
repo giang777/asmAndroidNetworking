@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ public class FragmentLogin extends Fragment {
     private IntentFilter filter;
 
     private String TAG = "FRAGMENT_LOGIN";
+    private ProgressBar progressBar;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,13 +50,14 @@ public class FragmentLogin extends Fragment {
         this.passwrd = view.findViewById(R.id.passwrd_login);
         this.goToRegister = view.findViewById(R.id.tv_GoToRegister);
         this.button = view.findViewById(R.id.btn_Login);
-
+        this.progressBar = view.findViewById(R.id.progressBar);
         this.filter = new IntentFilter(LoginService.ACTION_LOGIN);
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(resultReceiver, filter);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                progressBar.setVisibility(View.VISIBLE);
                 Intent intent = new Intent(getContext(), LoginService.class);
                 intent.setAction(LoginService.ACTION_LOGIN);
                 intent.putExtra(LoginService.EXTRA_EMAIL, email.getText().toString());
@@ -98,6 +101,7 @@ public class FragmentLogin extends Fragment {
                 boolean result = intent.getBooleanExtra(LoginService.RESULT,false);
                 String msg = intent.getStringExtra(LoginService.MESSAGE);
                 User user = (User) intent.getSerializableExtra(LoginService.USER);
+                progressBar.setVisibility(View.GONE);
                 MainActivity.UserLogin = user;
                 if(result){
                     getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fragment_open,R.anim.fragment_exit).replace(R.id.fragment_container,new FragmentHome()).addToBackStack(TAG).commit();

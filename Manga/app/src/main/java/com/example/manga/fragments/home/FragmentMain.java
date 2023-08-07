@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.manga.R;
 import com.example.manga.adapter.ListComicHotAdapter;
 import com.example.manga.elements.child.Comics;
+import com.example.manga.fragments.comics.FragmentCategoryComics;
 import com.example.manga.fragments.comics.FragmentComic;
 import com.example.manga.interface_item.OnClickcomics;
 import com.example.manga.thread.GetListComics;
@@ -32,6 +34,7 @@ public class FragmentMain extends Fragment {
     private RecyclerView recyclerView;
     private List<Comics> list;
     private static final String TAG = "FRAGMENT_MAIN";
+    private ImageView icon_app;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +50,16 @@ public class FragmentMain extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.layout = view.findViewById(R.id.SliderShow);
+        this.icon_app = view.findViewById(R.id.icon_app);
         this.recyclerView = view.findViewById(R.id.list_comic_hot);
+
+        icon_app.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fragment_open,R.anim.fragment_exit).replace(R.id.fragment_container,new FragmentCategoryComics()).addToBackStack(TAG).commit();
+            }
+        });
+
         this.adapter = new ListComicHotAdapter(getActivity(), new OnClickcomics() {
             @Override
             public void onclickItemComic(Comics comics) {

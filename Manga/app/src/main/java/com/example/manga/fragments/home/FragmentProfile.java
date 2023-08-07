@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import com.example.manga.MainActivity;
 import com.example.manga.R;
 import com.example.manga.fragments.FragmentLogin;
+import com.example.manga.fragments.comics.FragmentComicsFl;
 import com.squareup.picasso.Picasso;
 
 public class FragmentProfile extends Fragment {
@@ -22,8 +23,9 @@ public class FragmentProfile extends Fragment {
     private ImageView avatar;
     private TextView username;
 
-    private LinearLayout logout;
+    private LinearLayout logout,comicsFl;
 
+    private static final String TAG = "FRAGMENT_PROFILE";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +43,7 @@ public class FragmentProfile extends Fragment {
         this.avatar = view.findViewById(R.id.img_avatar_UserLogin);
         this.username = view.findViewById(R.id.name_UserLogin);
         this.logout = view.findViewById(R.id.btn_logout);
+        this.comicsFl = view.findViewById(R.id.comics_fl);
 
         try {
             Picasso.get().load(MainActivity.UserLogin.getAvatar()).into(avatar);
@@ -56,6 +59,13 @@ public class FragmentProfile extends Fragment {
             public void onClick(View view) {
                 MainActivity.UserLogin = null;
                 getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fragment_open,R.anim.fragment_exit).replace(R.id.fragment_container,new FragmentLogin()).commit();
+            }
+        });
+
+        comicsFl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fragment_open,R.anim.fragment_exit).replace(R.id.fragment_container,new FragmentComicsFl()).addToBackStack(TAG).commit();
             }
         });
 

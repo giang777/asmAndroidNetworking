@@ -26,19 +26,20 @@
                 android:layout_height="40dp"
                 android:src="@drawable/baseline_keyboard_arrow_left_24"
                 />
-            <TextView
-                android:id="@+id/name_comics"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:textColor="@color/white"
-                android:layout_marginLeft="10dp"
-                android:layout_marginVertical="5dp"
-                />
 
         </FrameLayout>
+
+        <TextView
+            android:id="@+id/name_comics"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:layout_marginLeft="10dp"
+            android:layout_marginVertical="5dp"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"

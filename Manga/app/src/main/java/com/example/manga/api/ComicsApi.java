@@ -6,6 +6,7 @@ import com.example.manga.MainActivity;
 import com.example.manga.api.LinkApi;
 import com.example.manga.elements.child.Blogs;
 import com.example.manga.elements.child.Chapters;
+import com.example.manga.elements.get.Data_Response_Comics;
 import com.example.manga.elements.get.Data_Response_ListBlogs;
 import com.example.manga.elements.get.Data_Response_ListChapter;
 import com.example.manga.elements.get.Data_Response_ListComics;
@@ -37,10 +38,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ComicsApi {
 
 
-   public List<Comics> getDataComics(){
+   public List<Comics> getDataComics(String category){
        String data = "";
        try {
-           URL url = new URL(LinkApi.URI + LinkApi.GET_LIST_COMICS);
+           URL url = new URL(LinkApi.URI + LinkApi.GET_LIST_COMICS + category);
            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
            InputStream inputStream = conn.getInputStream();
@@ -140,6 +141,38 @@ public class ComicsApi {
             writer.close();
             outputStream.close();
 
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Comics getComicsId(String id){
+        String data = "";
+        try {
+            URL url = new URL(LinkApi.URI + LinkApi.GET_COMIC_ID + id);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            InputStream inputStream = conn.getInputStream();
+
+            BufferedReader reader = new BufferedReader( new InputStreamReader(  inputStream )   );
+
+            StringBuilder builder = new StringBuilder();
+            String dong;
+
+            while(  (dong = reader.readLine()) != null  ){
+                builder.append( dong ).append("\n");
+            }
+
+            reader.close();
+            inputStream.close();
+            conn.disconnect();
+            data = builder.toString();
+
+            Gson gson = new Gson();
+            Data_Response_Comics dataResponseComics = gson.fromJson(data,Data_Response_Comics.class);
+            Comics comics = dataResponseComics.getData();
+
+            return comics;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

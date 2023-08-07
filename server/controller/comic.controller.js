@@ -1,3 +1,4 @@
+const ComicModel = require('../model/comic.model');
 const comicModel = require('../model/comic.model');
 
 const getListComic = async (req, res, next) => {
@@ -24,6 +25,16 @@ const getListComic = async (req, res, next) => {
             })
         }
 
+        if(req.query.category){
+            let data = await comicModel.find({id_category:req.query.category});
+            return res.status(200).json({
+                data: data,
+                query: null,
+                msg: "Thành công",
+                success: true,
+            })
+        }
+
         return res.status(200).json({
             data: data,
             query: null,
@@ -38,8 +49,20 @@ const getListComic = async (req, res, next) => {
     }
 }
 
-const getListComicHot = (req, res, next) => {
-
+const getLComicId = async (req, res, next) => {
+    try {
+        let comics = await ComicModel.findById({_id:req.query.id});
+        return res.status(200).json({
+            data: comics,
+            msg: "Thành công",
+            success: true,
+        })
+    } catch (error) {
+        return res.status(500).json({
+            msg: "Thất bại",
+            success: false,
+        })
+    }
 }
 
 
@@ -80,4 +103,4 @@ const updateComics = async (req, res, next) => {
     }
 }
 
-module.exports = { getListComic, getListComicHot, updateComics }
+module.exports = { getListComic, getLComicId, updateComics }

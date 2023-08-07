@@ -14,9 +14,11 @@ import retrofit2.http.Query;
 
 public class LinkApi {
 
-    public final static String URI = "http://192.168.1.10:3000/";
+    public final static String URI = "http://10.24.27.55:3000/";
 
-    public final static String GET_LIST_COMICS = "comics/list";
+    public final static String GET_LIST_COMICS = "comics/list?category=";
+
+    public final static String GET_COMIC_ID = "comics/id?id=";
 
     public final static String GET_LIST_BLOGS  = "blogs/list";
 
@@ -33,5 +35,8 @@ public class LinkApi {
     public final static String GET_LIST_COMMENT = "comments/list?id=";
 
     public final static String POST_COMMENT = "comments/add";
+
+    public final static String GET_LIST_FEEDBACK = "comments/feedback";
+    public final static String POST_FEEDBACK = "comments/post";
 
 }

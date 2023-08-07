@@ -27,7 +27,7 @@ public class GetListComics implements Runnable{
     @Override
     public void run() {
         ComicsApi api = new ComicsApi();
-        List<Comics> list = api.getDataComics();
+        List<Comics> list = api.getDataComics("");
         recyclerView.post(new Runnable() {
             @Override
             public void run() {

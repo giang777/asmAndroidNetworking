@@ -13,6 +13,10 @@ const FeedBack = new connect.mongoose.Schema({
     id_blog:{
         type:connect.mongoose.Schema.Types.ObjectId,
         ref:BlogModel,
+    },
+    time:{
+        type:Date,
+        require:true,
     }
 },
 {

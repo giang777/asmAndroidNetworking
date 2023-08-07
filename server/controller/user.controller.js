@@ -94,7 +94,7 @@ const userFollowComics = async (req,res,next)=>{
         let msg = userFL.username + " " + "vừa theo dõi" + " " + comicsFl.name;
 
         if(!req.body.isFollow){
-            notification.getNotification({titel:"Thông báo",msg:msg,img:comicsFl.img});
+            notification.getNotification({titel:comicsFl.name,msg:msg,img:comicsFl.img});
         }
         
         return res.status(200).json({

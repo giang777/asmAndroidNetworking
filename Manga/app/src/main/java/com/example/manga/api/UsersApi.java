@@ -1,5 +1,7 @@
 package com.example.manga.api;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.util.Log;
 
 import com.example.manga.MainActivity;

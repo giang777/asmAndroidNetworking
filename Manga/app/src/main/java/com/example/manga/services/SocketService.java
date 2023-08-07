@@ -34,34 +34,25 @@ import java.util.Date;
 import io.socket.emitter.Emitter;
 
 public class SocketService extends Service {
-    public static final String ACTION_CLOSE_SOCKET = "com.example.app.ACTION_CLOSE_SOCKET";
     private NotificationCompat.Builder builder;
     private NotificationManagerCompat notificationManager;
 
+    public final static String ACTION_NOTIFICATION = "push_notification";
+    public final static String EXTRA_NOTIFI = "notification";
     @Override
     public void onCreate() {
         super.onCreate();
+        MainActivity.socket.connect();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        if (intent != null) {
-            String action = intent.getAction();
-            if (action != null && action.equals(ACTION_CLOSE_SOCKET)) {
-                if (MainActivity.socket != null) {
-                    MainActivity.socket.close();
-                }
-                stopSelf();
-                return START_NOT_STICKY;
-            }
-        }
-        connectToSocket();
+        connectToSocket(intent);
         return START_STICKY;
     }
 
-    private void connectToSocket() {
-        MainActivity.socket.connect();
+    private void connectToSocket(Intent intent) {
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -72,6 +63,9 @@ public class SocketService extends Service {
                             String data_sv_send = (String) args[0];
                             Gson gson = new Gson();
                             Notifi notifi = gson.fromJson(data_sv_send,Notifi.class);
+                            intent.setAction(ACTION_NOTIFICATION);
+                            intent.putExtra(EXTRA_NOTIFI,notifi);
+                            sendBroadcast(intent);
                             showNotification(notifi);
                         }
                     });
@@ -96,11 +90,6 @@ public class SocketService extends Service {
 
         int id_notiy = (int) new Date().getTime();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("Manga", "Thông báo chạy ngầm", NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(channel);
-        }
-
         notificationManager.notify(id_notiy, builder.build());
     }
 
@@ -113,8 +102,5 @@ public class SocketService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (MainActivity.socket != null) {
-            MainActivity.socket.close();
-        }
     }
 }

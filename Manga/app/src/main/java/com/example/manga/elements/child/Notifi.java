@@ -2,7 +2,9 @@ package com.example.manga.elements.child;
 
 import android.graphics.Bitmap;
 
-public class Notifi {
+import java.io.Serializable;
+
+public class Notifi implements Serializable {
     private String titel,msg,img;
 
     public Notifi() {

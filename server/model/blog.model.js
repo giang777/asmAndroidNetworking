@@ -9,6 +9,10 @@ const Blog = new connect.mongoose.Schema({
         type:String,
         required:true,
     },
+    content:{
+        type:String,
+        required:true,
+    },
 },
 {
     collection:'blogs',
